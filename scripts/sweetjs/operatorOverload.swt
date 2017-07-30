@@ -1,0 +1,18 @@
+operator * 13 left { $left, $right } => #{( $left ).mul($right) }
+operator / 13 left { $left, $right } => #{( $left ).div($right) }
+operator % 13 left { $left, $right } => #{( $left ).mod($right) }
+operator + 12 left { $left, $right } => #{( $left ).add($right) }
+operator - 12 left { $left, $right } => #{( $left ).sub($right) }
+
+operator < 10 left { $left, $right } => #{( $left ).lt($right) }
+operator <= 10 left { $left, $right } => #{( $left ).lte($right) }
+operator > 10 left { $left, $right } => #{( $left ).gt($right) }
+operator >= 10 left { $left, $right } => #{( $left ).gte($right) }
+operator == 9 left { $left, $right } => #{( $left ).eq($right) }
+operator === 9 left { $left, $right } => #{( $left ).same($right) }
+operator != 9 left { $left, $right } => #{!( $left ).eq($right) }
+operator !== 9 left { $left, $right } => #{!( $left ).same($right) }
+
+operator ^ 15 left { $left, $right } => #{ $left.pow($right) }
+
+// TODO : figure out +=, etc operators, and bit shift operators?

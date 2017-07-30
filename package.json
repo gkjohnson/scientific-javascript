@@ -1,0 +1,29 @@
+{
+  "name": "scientific-javascript",
+  "version": "1.0.0",
+  "description": "Syntactic sugar to add unit notation to Javascript using Sweet.js",
+  "main": "app.js",
+  "dependencies": {
+    "ace-builds": "^1.2.8",
+    "body-parser": "^1.17.2",
+    "decimal": "0.0.2",
+    "express": "^4.15.3",
+    "js-quantities": "^1.6.6",
+    "sweet.js": "^0.7.3",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gkjohnson/scientific-javascript.git"
+  },
+  "author": "Garrett Johnson <garrett.kjohnson@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gkjohnson/scientific-javascript/issues"
+  },
+  "homepage": "https://github.com/gkjohnson/scientific-javascript#readme"
+}

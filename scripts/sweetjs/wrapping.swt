@@ -1,0 +1,111 @@
+let var = macro {
+    // asser variables type on definition
+    rule { $var < $unit > = $rest:expr} => { var $var = WrapQty($rest, $unit) }
+    // pass-through
+    rule { $var } => { var $var }
+}
+
+let < = macro {
+    // assert variable's type on assignment x<cm> = [value]
+    rule infix { $var | $unit > = $rest:expr} => { $var = WrapQty($rest,$unit) }
+    // assert variable's type on assignment in object { x<cm> : [value] }
+    rule infix { $var | $unit > : $rest:expr} => { $var : WrapQty($rest,$unit) }
+    // converting value with unit
+    rule infix { $value | $unit >} => { WrapQty($value, $unit ) }
+    // pass-through for basic less-than use
+    rule { $x } => { < $x }
+}
+
+// Wraps functions so they assert that the parameters
+// be a certain unit
+let function = macro {
+    // Basic function definitions, no asserted units on return
+    // function(){}
+    rule { (){ } } => { function (){ } }
+    // function n(){}
+    rule { $name(){ } } => { function $name(){ } }
+    // function(x){}
+    rule { ( $param:($var<$unit>) (,) ... ){ } } => {
+        function ($param$var ...)
+        { $((WrapQty($param$var,$param$unit)) (,) ...) }
+    }
+    // function n(x){}
+    rule { $name( $param:($var<$unit>) (,) ... ){ } } => {
+        function $name($param$var ...)
+        { $((WrapQty($param$var,$param$unit)) (,) ...) }
+    }
+    // function(){b}
+    rule { (){ $body ... } } => { function () { $body ... } }
+    // function n(){b}
+    rule { $name(){ $body ... } } => { function $name() { $body ... } }
+    // function(x){b}
+    rule {($param:($var<$unit>) (,) ... ){ $body ... } } => {
+        function ($param$var ...)
+        { $((WrapQty($param$var,$param$unit)) (,) ...) $body ... }
+    }
+    // function n(x){b}
+    rule { $name( $param:($var<$unit>) (,) ... ){ $body ... } } => {
+        function $name($param$var ...)
+        { $((WrapQty($param$var,$param$unit)) (,) ...) $body ... }
+    }
+    
+    // Functions that assert their return unit
+    // function(){}
+    rule { <$unit>(){ } } => { function(){ return WrapQty(function (){ }(),$unit);} }
+    // function n<u>(){}
+    rule { $name<$unit>(){ } } => { function(){ return WrapQty(function $name(){ }(),$unit); } }
+    // function<u>(x){}
+    rule { <$unit> ( $param:($var<$unit>) (,) ... ){ } } => {
+        function ($param$var ...){
+            return WrapQty(
+                function(){ $((WrapQty($param$var,$param$unit)) (,) ...) }(), $unit );
+        }
+    }
+    // function n<u>(x){}
+    rule { $name<$unit> ( $param:($var<$unit>) (,) ... ){ } } => {
+        function $name($param$var ...)
+        { return WrapQty(function(){ $((WrapQty($param$var,$param$unit)) (,) ...) }(),$unit); }
+    }
+    // function<u>(){b}
+    rule { <$unit>(){ $body ... } } => { function(){ WrapQty(function () { $body ... }(),$unit); } }
+    // function n<u>(){b}
+    rule { $name<$unit>(){ $body ... } } => {
+        function $name() {
+            return WrapQty(
+                function(){$body ... }(), $unit);
+        }
+    }
+    // function<u>(x){b}
+    rule {<$unit> ($param:($var<$unit>) (,) ... ){ $body ... } } => {
+        function ($param$var ...){
+            return WrapQty(
+                function(){ $((WrapQty($param$var,$param$unit)) (,) ...) $body ... }(), $unit);
+        }
+    }
+    // function n<u>(x){b}
+    rule { $name<$unit> ( $param:($var<$unit>) (,) ... ){ $body ... } } => {
+        function $name($param$var ...){
+            return WrapQty(
+                function(){ $((WrapQty($param$var,$param$unit)) (,) ...) $body ... }(), $unit);
+        }
+    }
+}
+
+/*var x = function (){}
+var x = function (x<C>){}
+var x = function (x<C>){}
+function a(x<C>){}
+var x = function (){console.log(x);}
+function a(){console.log(x);}
+var x = function (x<C>){console.log(x);}
+function a(x<C>){console.log(x);}
+
+
+var x = function<u> (){}
+var x = function<u> (x<C>){}
+var x = function<u> (x<C>){}
+function a<u>(x<C>){}
+var x = function <u>(){console.log(x);}
+function a<u>(){console.log(x);}
+var x = function <u>(x<C>){console.log(x);}
+function a<u>(x<C>){console.log(x);}*/

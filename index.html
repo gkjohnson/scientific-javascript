@@ -1,0 +1,147 @@
+<html>
+    <head>
+        <script type="text/javascript" src="/node_modules/underscore/underscore.js"></script>
+        <script type="text/javascript" src="/node_modules/ace-builds/src/ace.js"></script>
+        <script type="text/javascript" src="/node_modules/decimal/lib/decimal.js"></script>
+        <script type="text/javascript" src="/node_modules/js-quantities/build/quantities.js"></script>
+        <script type="text/javascript" src="/scripts/mode-scientific-javascript.js"></script>
+        <script type="text/javascript" src="/scripts/sjsNumber.js"></script>
+
+        <script data-main="/node_modules/sweet.js/browser/scripts/editor.js" src="/node_modules/sweet.js/browser/scripts/require.js"></script>
+        <style type="text/css">
+            /* Syntax Highlighting */
+            .ace_kw { color : #09f; }
+            .ace_units { color: #f90; }
+            .ace_cmt { opacity:0.5; }
+            .ace_num { color: #05a; }
+            .ace_string {color:red}
+
+            html, body, #wrapper {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-family: monospace;
+            }
+
+            #wrapper { 
+                display: flex;
+                overflow: hidden;
+            }
+            #wrapper > * { 
+                flex: 1;
+                height: 100%;
+            }
+
+            #output-wrapper {
+                flex: 0.5;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #error {
+                background-color: #E91E63;
+                color:white;
+                padding: 5px;
+            }
+
+            #error:empty {
+                display: none;
+            }
+
+            #output {
+                flex: 1;
+                padding: 5px 10px;
+                margin: 0;
+
+                overflow: auto;
+
+                border-left: 1px solid #eee;
+            }
+
+            #output:before {
+                content: "output";
+                color: #aaa;
+                display: block;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="editor"></div>
+            <div id="output-wrapper">
+                <div id="error"></div>
+                <pre id="output"></pre>
+            </div>
+        </div>
+        <script type="text/javascript">
+
+            const code = `
+                // basic print statement
+                const x = 100<kg>
+                console.log(x)
+
+                // unit multiplication
+                const mkg = 100<m> * 100<kg>
+                console.log(mkg, mkg === 10000<m*kg>)
+
+                // unit division
+                console.log(mkg/1<kg>)
+
+                // unit iteration
+                for(var i = 0<m>; i < 5<m>; i = i + 10<cm>) console.log(i)
+
+                // throws incompatible units error
+                100<kg> + 1<m>
+                `.replace(/\n +/g, '\n');
+
+            // Editor setup
+            const editor = ace.edit('editor');
+            editor.session.setMode('ace/mode/scientific-javascript');
+            editor.setShowPrintMargin(false)
+            editor.session.setValue(code)
+            
+            // Run the code
+            const runCode = code => {
+                const output = document.querySelector('#output')
+                const error = document.querySelector('#error')
+                output.innerHTML = ""
+                
+                // override console to catch logs
+                const _origConsole = console.log
+                console.log = (...args) => args.forEach(arg => output.innerHTML += arg.toString() + '\n')
+                
+                // run and watch for errors
+                try {
+                    eval(code)
+                    error.innerHTML = ''
+                } catch(e) {
+                    error.innerHTML = e.toString()
+                }
+                console.log = _origConsole
+            }
+
+            // covert the code on the server and run
+            const execute = _.debounce(() => {
+                fetch('/compile', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: editor.session.getValue() })
+                })
+                .then(res => res.text())
+                .then(code => runCode(code))
+            }, 500);
+            execute()
+
+            editor.session.on('change', () => execute( editor.session.getValue() ));
+            // TODO :
+            // -- change backend to use another units library and decimaljs
+            // -- enable creation of functions that require certain units for parameters
+            // -- on variable creation, enable unit specification to force a unit on creation
+            // -- allow unit casting after parantheses for checks and print casts
+        </script>
+    </body>
+</html>
