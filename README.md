@@ -1,5 +1,5 @@
 # scientific-javascript
-A prototype, proof of concept project that adds syntactic sugar for unit notation to Javascript using Sweet.js. The addition allows for adding units to numbers and automatic unit conversion when doing operations.
+A prototype, proof of concept project that adds syntactic sugar for unit notation to Javascript using Sweet.js. The addition allows for adding units to numbers and automatic unit conversion when performing mathematical operations. Inspired by working with engineers modeling complex systems with manual unit conversion, making it difficult to trace.
 
 This is purely a prototype and should not be considered useable in any kind of real work.
 
