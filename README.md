@@ -4,11 +4,13 @@ A prototype, proof of concept project that adds syntactic sugar for unit notatio
 This is purely a prototype and should not be considered useable in any kind of real work.
 
 ## Syntax
-#### Units
+### Units
 A unit type is denoted by appending `<unit>` to the value.
 
-#### Example
+### Example
 ![example](/docs/example.png)
+
+*Gotta love that floating point precision*
 
 ## Next Steps
 The approach used to process the syntax is particularly hacky and involves a few regex replaces and two Sweet.js compilations in order to get to runnable javascript code. This syntax doesn't seem to be achieveable with the new version of Sweet.js, either.
